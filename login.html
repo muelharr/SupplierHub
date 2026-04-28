@@ -549,6 +549,10 @@
             e.preventDefault();
             const role = document.querySelector('input[name="login_role"]:checked').value;
 
+            // Ambil parameter promo dari URL (jika ada dari landing page)
+            const urlParams = new URLSearchParams(window.location.search);
+            const promoParam = urlParams.get('promo');
+
             const overlay = document.getElementById('loading-overlay');
             const spinner = document.getElementById('loading-spinner');
             const text = document.getElementById('loading-text');
@@ -565,7 +569,7 @@
             if (role === 'umkm') {
                 spinner.className = 'absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin';
                 text.innerText = 'Menyiapkan Portal UMKM...';
-                subtext.innerText = 'Menghubungkan ke Katalog Supplier';
+                subtext.innerText = promoParam ? 'Memuat penawaran spesial untuk Anda...' : 'Menghubungkan ke Katalog Supplier';
             } else {
                 spinner.className = 'absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin';
                 text.innerText = 'Menyiapkan SupplierHub...';
@@ -586,8 +590,13 @@
                 spinner.innerHTML = '<i class="ph-bold ph-check text-white text-4xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>';
 
                 setTimeout(() => {
-                    if (role === 'umkm') window.location.href = 'client.html';
-                    else window.location.href = 'supplierhub.html';
+                    if (role === 'umkm') {
+                        // Teruskan parameter promo ke client.html jika ada
+                        const clientUrl = promoParam ? 'client.html?promo=' + encodeURIComponent(promoParam) : 'client.html';
+                        window.location.href = clientUrl;
+                    } else {
+                        window.location.href = 'supplierhub.html';
+                    }
                 }, 800);
             }, 1500);
         }

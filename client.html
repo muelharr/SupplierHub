@@ -141,6 +141,18 @@
         </div>
     </main>
 
+    <!-- Promo Modal Overlay -->
+    <div id="promo-modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] hidden items-center justify-center p-4 transition-opacity duration-300 opacity-0" onclick="closePromoModal(event)">
+        <div id="promo-modal" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-all duration-300 relative" onclick="event.stopPropagation()">
+            <button onclick="closePromoModal()" class="absolute top-4 right-4 w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors z-10">
+                <i class="ph-bold ph-x text-sm"></i>
+            </button>
+            <div id="promo-modal-content">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
@@ -236,6 +248,8 @@
                     <h1 class="text-2xl font-bold text-slate-800">Dashboard UMKM</h1>
                     <p class="text-slate-500 text-sm mt-1">Ringkasan aktivitas pengadaan bahan baku Anda.</p>
                 </div>
+
+                ${getPromoBannerHtml()}
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div class="bg-white rounded-xl p-5 border border-slate-100 shadow-sm flex items-center">
@@ -517,9 +531,273 @@
             }, 1500);
         }
 
+        // --- Promo System ---
+        const PROMO_DATA = {
+            'loyalty': {
+                type: 'info',
+                icon: 'ph-crown',
+                gradient: 'from-amber-500 to-orange-500',
+                bgLight: 'bg-amber-50',
+                textColor: 'text-amber-600',
+                badge: 'Program Loyalitas',
+                title: 'Pesan 5x, Pengiriman ke-6 GRATIS!',
+                desc: 'Setiap UMKM yang menyelesaikan 5 transaksi pengadaan bahan baku akan otomatis mendapatkan gratis ongkos kirim pada pengiriman berikutnya.',
+                benefits: [
+                    { milestone: '5x', text: 'Gratis Ongkir', sub: 'Pengiriman ke-6 bebas biaya' },
+                    { milestone: '10x', text: 'Diskon 10%', sub: 'Potongan langsung di order' },
+                    { milestone: '15x', text: 'VIP Member', sub: 'Harga spesial + priority shipping' },
+                    { milestone: '25x', text: 'Gold Partner ⭐', sub: 'Diskon 15% + gratis ongkir selamanya' }
+                ],
+                btnText: 'Mulai Belanja Sekarang',
+                btnAction: 'katalog'
+            },
+            'bundle-starter': {
+                type: 'bundle',
+                icon: 'ph-leaf',
+                gradient: 'from-emerald-500 to-emerald-600',
+                bgLight: 'bg-emerald-50',
+                textColor: 'text-emerald-600',
+                badge: 'Pengguna Baru',
+                title: 'Paket Starter UMKM',
+                desc: 'Bahan baku dasar untuk memulai produksi',
+                items: [
+                    { id: 'MAT-001', name: 'Tepung Terigu', qty: 10 },
+                    { id: 'MAT-002', name: 'Gula Pasir', qty: 5 },
+                    { id: 'MAT-003', name: 'Minyak Goreng', qty: 5 },
+                    { id: 'MAT-004', name: 'Telur Ayam', qty: 2 }
+                ],
+                originalPrice: 339500,
+                promoPrice: 289000,
+                discount: 'Hemat Rp 50.500 (15%)',
+                btnText: 'Tambah ke Keranjang',
+                btnAction: 'addBundle'
+            },
+            'bundle-pro': {
+                type: 'bundle',
+                icon: 'ph-package',
+                gradient: 'from-blue-500 to-blue-600',
+                bgLight: 'bg-blue-50',
+                textColor: 'text-blue-600',
+                badge: '⭐ Paling Populer',
+                title: 'Paket Usaha Pro',
+                desc: 'Lengkap untuk produksi harian skala menengah',
+                items: [
+                    { id: 'MAT-001', name: 'Tepung Terigu', qty: 25 },
+                    { id: 'MAT-002', name: 'Gula Pasir', qty: 15 },
+                    { id: 'MAT-003', name: 'Minyak Goreng', qty: 10 },
+                    { id: 'MAT-004', name: 'Telur Ayam', qty: 5 },
+                    { id: 'MAT-005', name: 'Bawang Merah', qty: 3 }
+                ],
+                originalPrice: 847500,
+                promoPrice: 679000,
+                discount: 'Hemat Rp 168.500 (20%) + Free Ongkir',
+                btnText: 'Tambah ke Keranjang',
+                btnAction: 'addBundle'
+            },
+            'bundle-grosir': {
+                type: 'bundle',
+                icon: 'ph-warehouse',
+                gradient: 'from-amber-500 to-amber-600',
+                bgLight: 'bg-amber-50',
+                textColor: 'text-amber-600',
+                badge: 'Best Value',
+                title: 'Paket Grosir Mitra',
+                desc: 'Stok besar dengan harga supplier langsung',
+                items: [
+                    { id: 'MAT-001', name: 'Tepung Terigu', qty: 50 },
+                    { id: 'MAT-002', name: 'Gula Pasir', qty: 25 },
+                    { id: 'MAT-003', name: 'Minyak Goreng', qty: 20 },
+                    { id: 'MAT-004', name: 'Telur Ayam', qty: 10 },
+                    { id: 'MAT-005', name: 'Bawang Merah', qty: 10 }
+                ],
+                originalPrice: 1695000,
+                promoPrice: 1299000,
+                discount: 'Hemat Rp 396.000 (23%) + VIP',
+                btnText: 'Tambah ke Keranjang',
+                btnAction: 'addBundle'
+            },
+            'flash-cashback': {
+                type: 'info',
+                icon: 'ph-lightning',
+                gradient: 'from-red-500 to-orange-500',
+                bgLight: 'bg-red-50',
+                textColor: 'text-red-600',
+                badge: '⚡ Flash Deal',
+                title: 'Cashback 5% Transaksi Pertama!',
+                desc: 'Daftar hari ini dan langsung dapatkan cashback 5% untuk transaksi pertama Anda. Cashback otomatis masuk ke saldo SmartBank.',
+                benefits: [
+                    { milestone: '5%', text: 'Cashback Instan', sub: 'Langsung masuk saldo SmartBank' },
+                    { milestone: '1x', text: 'Transaksi Pertama', sub: 'Berlaku untuk order pertama Anda' }
+                ],
+                btnText: 'Mulai Belanja & Klaim Cashback',
+                btnAction: 'katalog'
+            }
+        };
+
+        let activePromo = null;
+
+        function getPromoParam() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('promo');
+        }
+
+        function openPromoModal(promoKey) {
+            const promo = PROMO_DATA[promoKey];
+            if (!promo) return;
+            activePromo = promoKey;
+
+            const overlay = document.getElementById('promo-modal-overlay');
+            const modal = document.getElementById('promo-modal');
+            const content = document.getElementById('promo-modal-content');
+
+            let bodyHtml = '';
+
+            if (promo.type === 'bundle') {
+                const itemsHtml = promo.items.map(it =>
+                    `<li class="flex items-center gap-2 text-sm text-slate-700">
+                        <i class="ph-fill ph-check-circle ${promo.textColor}"></i> ${it.name} <span class="ml-auto font-bold text-slate-500">${it.qty} unit</span>
+                    </li>`
+                ).join('');
+
+                bodyHtml = `
+                    <div class="bg-gradient-to-br ${promo.gradient} p-6 pb-8 text-white relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <div class="relative z-10">
+                            <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-3 border border-white/20">${promo.badge}</div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center"><i class="ph-fill ${promo.icon} text-2xl"></i></div>
+                                <h3 class="text-2xl font-extrabold">${promo.title}</h3>
+                            </div>
+                            <p class="text-white/80 text-sm">${promo.desc}</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="bg-slate-50 rounded-xl p-4 mb-4 border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Isi Paket</h4>
+                            <ul class="space-y-2.5">${itemsHtml}</ul>
+                        </div>
+                        <div class="flex items-end gap-3 mb-3">
+                            <span class="text-slate-400 text-sm line-through">${formatRupiah(promo.originalPrice)}</span>
+                            <span class="text-2xl font-extrabold ${promo.textColor}">${formatRupiah(promo.promoPrice)}</span>
+                        </div>
+                        <div class="${promo.bgLight} ${promo.textColor} text-xs font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 mb-5 border border-current/20">
+                            <i class="ph-fill ph-tag"></i> ${promo.discount}
+                        </div>
+                        <button onclick="handlePromoAction('${promoKey}')" class="w-full bg-gradient-to-r ${promo.gradient} text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base">
+                            <i class="ph-bold ph-shopping-cart"></i> ${promo.btnText}
+                        </button>
+                    </div>`;
+            } else {
+                const benefitsHtml = promo.benefits.map(b =>
+                    `<div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div class="w-10 h-10 ${promo.bgLight} rounded-full flex items-center justify-center ${promo.textColor} font-extrabold text-sm shrink-0">${b.milestone}</div>
+                        <div><p class="text-slate-800 text-sm font-bold">${b.text}</p><p class="text-slate-500 text-xs">${b.sub}</p></div>
+                    </div>`
+                ).join('');
+
+                bodyHtml = `
+                    <div class="bg-gradient-to-br ${promo.gradient} p-6 pb-8 text-white relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <div class="relative z-10">
+                            <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-3 border border-white/20">${promo.badge}</div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center"><i class="ph-fill ${promo.icon} text-2xl"></i></div>
+                                <h3 class="text-2xl font-extrabold">${promo.title}</h3>
+                            </div>
+                            <p class="text-white/80 text-sm">${promo.desc}</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Benefit & Milestone</h4>
+                        <div class="space-y-2.5 mb-6">${benefitsHtml}</div>
+                        <button onclick="handlePromoAction('${promoKey}')" class="w-full bg-gradient-to-r ${promo.gradient} text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base">
+                            <i class="ph-bold ph-rocket-launch"></i> ${promo.btnText}
+                        </button>
+                    </div>`;
+            }
+
+            content.innerHTML = bodyHtml;
+
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                modal.classList.remove('scale-95');
+                modal.classList.add('scale-100');
+            }, 20);
+        }
+
+        function closePromoModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            const overlay = document.getElementById('promo-modal-overlay');
+            const modal = document.getElementById('promo-modal');
+            overlay.classList.add('opacity-0');
+            modal.classList.remove('scale-100');
+            modal.classList.add('scale-95');
+            setTimeout(() => {
+                overlay.classList.remove('flex');
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+
+        function handlePromoAction(promoKey) {
+            const promo = PROMO_DATA[promoKey];
+            if (!promo) return;
+
+            if (promo.type === 'bundle' && promo.items) {
+                promo.items.forEach(item => {
+                    const existing = cart.find(c => c.id === item.id);
+                    if (existing) {
+                        existing.qty += item.qty;
+                    } else {
+                        cart.push({ id: item.id, qty: item.qty });
+                    }
+                });
+                updateGlobalUI();
+                closePromoModal();
+                showToast(`Paket "${promo.title}" berhasil ditambahkan ke keranjang!`, 'success');
+                setTimeout(() => navigate('keranjang'), 500);
+            } else {
+                closePromoModal();
+                navigate('katalog');
+                showToast('Selamat berbelanja! Promo Anda sudah aktif.', 'success');
+            }
+
+            // Clear promo from URL without reload
+            const url = new URL(window.location);
+            url.searchParams.delete('promo');
+            window.history.replaceState({}, '', url);
+        }
+
+        function getPromoBannerHtml() {
+            const promoKey = getPromoParam();
+            if (!promoKey || !PROMO_DATA[promoKey]) return '';
+            const promo = PROMO_DATA[promoKey];
+            return `
+                <div class="bg-gradient-to-r ${promo.gradient} rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg text-white relative overflow-hidden cursor-pointer" onclick="openPromoModal('${promoKey}')">
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                    <div class="flex items-center gap-3 relative z-10">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0"><i class="ph-fill ${promo.icon} text-xl"></i></div>
+                        <div>
+                            <p class="font-extrabold text-base">${promo.title}</p>
+                            <p class="text-white/80 text-xs">Klik untuk melihat detail penawaran</p>
+                        </div>
+                    </div>
+                    <button class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-bold px-5 py-2 rounded-xl text-sm transition-all border border-white/20 shrink-0 relative z-10 flex items-center gap-1.5">
+                        Lihat Detail <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>`;
+        }
+
         // Initialize App
         window.onload = () => {
             navigate('dashboard');
+
+            // Show promo modal if arriving from landing page promo link
+            const promoKey = getPromoParam();
+            if (promoKey && PROMO_DATA[promoKey]) {
+                setTimeout(() => openPromoModal(promoKey), 600);
+            }
         };
 
     </script>
