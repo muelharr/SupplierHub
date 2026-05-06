@@ -82,7 +82,7 @@ paths:
                   format: password
                 role:
                   type: string
-                  enum: [manufacturer, supplier]
+                  enum: [umkm, supplier]
       responses:
         '201':
           description: Registrasi berhasil
@@ -231,8 +231,12 @@ paths:
             schema:
               type: object
               required:
+                - supplier_id
                 - items
               properties:
+                supplier_id:
+                  type: integer
+                  description: ID dari supplier yang akan menerima pesanan
                 items:
                   type: array
                   items:
