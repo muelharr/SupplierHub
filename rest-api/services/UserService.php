@@ -1,12 +1,16 @@
 <?php
 /**
  * User Service
- * Database queries untuk tabel users
+ * LAYER: Business Logic (Service Layer)
  * 
+ * Arsitektur: Service berisi LOGIKA BISNIS murni.
+ * Akses database didelegasikan ke UserRepository.
+ * 
+ * Microservice Domain: Auth Service
  * Mengikuti pola services/books.ts dari referensi pertemuan 06
  */
 
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../models/UserRepository.php';
 
 class UserService {
 
@@ -15,10 +19,7 @@ class UserService {
      * @return array|false
      */
     public static function findByEmail($email) {
-        $db = getDB();
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
-        $stmt->execute(['email' => $email]);
-        return $stmt->fetch();
+        return UserRepository::findByEmail($email);
     }
 
     /**
@@ -26,33 +27,22 @@ class UserService {
      * @return array|false
      */
     public static function findById($id) {
-        $db = getDB();
-        $stmt = $db->prepare("SELECT id, name, email, role, created_at FROM users WHERE id = :id LIMIT 1");
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch();
+        return UserRepository::findById($id);
     }
 
     /**
      * Buat user baru
+     * Logika bisnis: password di-hash sebelum disimpan ke database
      * @return int ID user yang baru dibuat
      */
     public static function create($data) {
-        $db = getDB();
-        $stmt = $db->prepare("
-            INSERT INTO users (name, email, password, role) 
-            VALUES (:name, :email, :password, :role)
-        ");
-        $stmt->execute([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => password_hash($data['password'], PASSWORD_BCRYPT),
-            'role'     => $data['role']
-        ]);
-        return (int) $db->lastInsertId();
+        // Hash password (logika bisnis — bukan urusan Repository)
+        $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        return UserRepository::create($data);
     }
 
     /**
-     * Verifikasi password
+     * Verifikasi password (logika bisnis keamanan)
      */
     public static function verifyPassword($plainPassword, $hashedPassword) {
         return password_verify($plainPassword, $hashedPassword);

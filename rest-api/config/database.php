@@ -1,34 +1,32 @@
 <?php
 /**
- * Database Configuration - PDO MySQL
- * REST API SupplierHub
+ * Database & Application Configuration - REST API SupplierHub
  * 
- * Menggunakan database yang SAMA dengan website PHP (supplierhub_db)
+ * ARSITEKTUR: Single Source of Truth
+ * Konstanta bersama (Fee, JWT, SmartBank) dimuat dari config/constants.php
+ * agar tidak terjadi duplikasi antar layer frontend dan REST API.
+ * 
+ * Hanya konstanta khusus REST API (DB credentials) yang didefinisikan di sini.
  */
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'supplierhub_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+// ===== Shared Constants (Single Source of Truth) =====
+// Fee, JWT, SmartBank URL, APP_VERSION didefinisikan di sini:
+require_once __DIR__ . '/../../config/constants.php';
 
-// JWT Configuration
-define('JWT_SECRET', 'supplierhub_b2b_secret_key_2026');
-define('JWT_EXPIRY', 86400); // 24 hours
+// ===== Database Credentials (REST API specific) =====
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_NAME')) define('DB_NAME', 'supplierhub_db');
+if (!defined('DB_USER')) define('DB_USER', 'root');
+if (!defined('DB_PASS')) define('DB_PASS', '');
 
-// Fee & Financial Rules (sesuai Aplikasi.docx)
-define('FEE_SUPPLIER', 0.03);   // 3% margin supplier
-define('FEE_GATEWAY', 0.005);   // 0.5% fee API Gateway
-define('FEE_BANK', 0.01);       // 1% fee SmartBank
-
-// SmartBank API
-define('SMARTBANK_API_URL', 'http://localhost/SmartBank/api');
-
-// Application
-define('APP_NAME', 'SupplierHub REST API');
-define('APP_VERSION', '1.0.0');
+// ===== REST API Identifier =====
+if (!defined('REST_API_NAME')) define('REST_API_NAME', 'SupplierHub REST API');
 
 /**
- * Get PDO database connection (singleton)
+ * Get PDO database connection (singleton pattern)
+ * 
+ * Arsitektur: Semua Repository menggunakan fungsi ini
+ * untuk mendapatkan koneksi database yang sama (shared connection).
  */
 function getDB() {
     static $pdo = null;

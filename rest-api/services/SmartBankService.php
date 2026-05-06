@@ -1,7 +1,15 @@
 <?php
 /**
  * SmartBank Service
+ * LAYER: Business Logic (Service Layer)
+ * IMPLEMENTS: PaymentServiceInterface (Kontrak Microservice)
+ * 
  * Integrasi dengan SmartBank API untuk pembayaran
+ * 
+ * Arsitektur Microservice:
+ *   SmartBankService adalah implementasi dari PaymentServiceInterface.
+ *   Jika di masa depan SmartBank diganti bank lain, cukup buat class baru
+ *   yang implements PaymentServiceInterface — Order Service tidak perlu berubah.
  * 
  * Aturan #3: Semua output transaksi = payment request
  * Aturan #4: SmartBank sebagai pusat kontrol
@@ -13,8 +21,9 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../middleware/GatewayMiddleware.php';
+require_once __DIR__ . '/../contracts/PaymentServiceInterface.php';
 
-class SmartBankService {
+class SmartBankService implements PaymentServiceInterface {
 
     /**
      * Kirim payment request ke SmartBank
