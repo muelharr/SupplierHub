@@ -35,6 +35,38 @@
                 return { status: 'error', message: 'Koneksi ke server gagal.' };
             }
         }
+
+        // Auto Refresh Logic (Every 1 Minute)
+        let secondsRemaining = 60;
+
+        function initAutoRefresh() {
+            const timerSpan = document.getElementById('refresh-timer');
+            if (!timerSpan) return;
+
+            setInterval(() => {
+                secondsRemaining--;
+                if (secondsRemaining <= 0) {
+                    secondsRemaining = 0;
+                    const icon = document.getElementById('refresh-icon');
+                    if (icon) {
+                        icon.style.transition = 'transform 0.5s ease-in-out';
+                        icon.style.transform = 'rotate(720deg)';
+                    }
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    const m = Math.floor(secondsRemaining / 60);
+                    const s = secondsRemaining % 60;
+                    timerSpan.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // Call on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initAutoRefresh();
+        });
     </script>
 </body>
 </html>

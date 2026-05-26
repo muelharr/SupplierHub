@@ -12,7 +12,7 @@ class Order {
     /**
      * Create new order with items
      */
-    public static function create($umkm_id, $supplier_id, $items) {
+    public static function create($umkm_id, $supplier_id, $items, $discount = 0) {
         $db = getDB();
         $db->beginTransaction();
 
@@ -28,7 +28,8 @@ class Order {
             }
 
             $fee = (int) round($subtotal * FEE_SUPPLIER);
-            $total = $subtotal + $fee;
+            $total = ($subtotal + $fee) - $discount;
+            if ($total < 0) $total = 0;
             $orderCode = self::generateCode();
 
             // Insert order

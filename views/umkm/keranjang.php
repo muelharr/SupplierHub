@@ -11,7 +11,22 @@ foreach ($cart as $item) {
     }
 }
 $fee = (int) round($subtotal * FEE_SUPPLIER);
-$grandTotal = $subtotal + $fee;
+$bundleDiscount = $_SESSION['bundle_discount'] ?? 0;
+$bundleName = $_SESSION['bundle_name'] ?? '';
+
+// Dynamic Membership Subscription Discount
+$subscription = $_SESSION['subscription'] ?? '';
+$subDiscount = 0;
+$subDiscountPercent = 0;
+if ($subscription === 'vip') {
+    $subDiscountPercent = 5;
+    $subDiscount = (int) round($subtotal * 0.05);
+} elseif ($subscription === 'gold') {
+    $subDiscountPercent = 10;
+    $subDiscount = (int) round($subtotal * 0.10);
+}
+
+$grandTotal = max(0, $subtotal + $fee - $bundleDiscount - $subDiscount);
 ?>
 <div class="mb-6"><h1 class="text-2xl font-bold text-slate-800">Keranjang Belanja</h1><p class="text-slate-500 text-sm mt-1">Review pesanan dan proses pembayaran melalui SmartBank.</p></div>
 
@@ -25,7 +40,12 @@ $grandTotal = $subtotal + $fee;
 <?php else: ?>
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-5 self-start">
-        <h3 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Daftar Bahan Baku</h3>
+        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
+            <h3 class="font-bold text-slate-800">Daftar Bahan Baku</h3>
+            <button onclick="clearCart()" class="text-xs text-red-500 hover:text-red-700 font-bold flex items-center gap-1 transition-colors bg-red-50 hover:bg-red-100 px-2.5 py-1.5 rounded-lg border border-red-100 shadow-sm">
+                <i class="ph ph-trash text-sm"></i> Kosongkan Keranjang
+            </button>
+        </div>
         <?php foreach ($cartItems as $idx => $item): ?>
         <div class="flex flex-col sm:flex-row justify-between items-center py-4 border-b border-slate-100 last:border-0 gap-4">
             <div class="flex items-center flex-1">
@@ -46,13 +66,26 @@ $grandTotal = $subtotal + $fee;
     <div class="lg:col-span-1">
         <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 mb-4">
             <h3 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Ringkasan Pembayaran</h3>
-            <div class="space-y-2 text-sm text-slate-600 mb-4">
+            <div class="space-y-2 text-sm text-slate-600 mb-6 bg-slate-50 p-3 rounded-lg border border-slate-100">
                 <div class="flex justify-between"><span>Subtotal</span><span class="font-medium text-slate-800">Rp <?= number_format($subtotal,0,',','.') ?></span></div>
-                <div class="flex justify-between items-center text-secondary bg-amber-50 p-2 rounded border border-amber-100"><span class="flex items-center"><i class="ph-fill ph-info mr-1"></i>Fee Supplier (3%)</span><span class="font-bold">+ Rp <?= number_format($fee,0,',','.') ?></span></div>
+                <div class="flex justify-between items-center text-slate-500"><span>Fee Supplier (3%)</span><span class="font-bold text-slate-800">+ Rp <?= number_format($fee,0,',','.') ?></span></div>
+                <?php if ($bundleDiscount > 0): ?>
+                <div class="flex justify-between items-center text-emerald-600 font-semibold" id="cart-bundle-row">
+                    <span>Diskon <?= htmlspecialchars($bundleName) ?></span>
+                    <span class="font-bold">- Rp <?= number_format($bundleDiscount, 0, ',', '.') ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($subDiscount > 0): ?>
+                <div class="flex justify-between items-center text-emerald-600 font-semibold" id="cart-subscription-row">
+                    <span>Diskon <?= $subscription === 'vip' ? 'VIP Member (5%)' : 'Gold Partner (10%)' ?></span>
+                    <span class="font-bold">- Rp <?= number_format($subDiscount, 0, ',', '.') ?></span>
+                </div>
+                <?php endif; ?>
             </div>
+
             <div class="border-t border-slate-100 pt-3 flex justify-between items-center mb-6">
                 <span class="font-bold text-slate-800 text-base">Total Tagihan</span>
-                <span class="font-bold text-primary text-xl">Rp <?= number_format($grandTotal,0,',','.') ?></span>
+                <span class="font-bold text-primary text-xl" id="cart-grand-total">Rp <?= number_format($grandTotal,0,',','.') ?></span>
             </div>
             <div class="bg-blue-50 border border-blue-100 p-3 rounded-lg text-xs text-blue-800 mb-4 flex items-start">
                 <i class="ph-fill ph-bank mt-0.5 mr-2 text-lg"></i>
@@ -68,10 +101,43 @@ $grandTotal = $subtotal + $fee;
 
 <script>
 const BASE='<?= rtrim(dirname($_SERVER["SCRIPT_NAME"]),"/\\") ?>';
+let cartState = {
+    subtotal: <?= $subtotal ?>,
+    fee: <?= $fee ?>,
+    bundleDiscount: <?= $bundleDiscount ?>,
+    subDiscount: <?= $subDiscount ?>,
+    total: <?= $grandTotal ?>
+};
+
+function clearCart() {
+    if (confirm('Apakah Anda yakin ingin mengosongkan seluruh isi keranjang belanja Anda?')) {
+        window.location.href = 'index.php?p=umkm&page=keranjang&cart_action=clear';
+    }
+}
+
 async function processCheckout(){
     showToast('Memproses pembayaran melalui API Gateway...','info');
-    const r=await apiCall(BASE+'/api/orders.php?action=checkout','POST',{supplier_id:1,from_cart:true});
-    if(r.status==='success'){showToast('Pesanan berhasil dibuat!');setTimeout(()=>window.location.href=BASE+'/index.php?p=umkm&page=riwayat',1500);}
+    
+    const totalDiscount = cartState.bundleDiscount + cartState.subDiscount;
+    let discountName = '';
+    if (cartState.bundleDiscount > 0) {
+        discountName = '<?= addslashes($bundleName) ?>';
+    }
+    if (cartState.subDiscount > 0) {
+        if (discountName) discountName += ' & ';
+        discountName += '<?= $subscription === 'vip' ? 'Diskon VIP Member (5%)' : 'Diskon Gold Partner (10%)' ?>';
+    }
+
+    const r=await apiCall(BASE+'/api/orders.php?action=checkout','POST',{
+        supplier_id: 1, 
+        from_cart: true,
+        discount: totalDiscount,
+        voucher_name: discountName
+    });
+    if(r.status==='success'){
+        showToast('Pesanan berhasil dibuat!');
+        setTimeout(()=>window.location.href=BASE+'/index.php?p=umkm&page=riwayat',1500);
+    }
     else showToast(r.message,'error');
 }
 </script>

@@ -8,7 +8,11 @@ $pendingOrders = Order::getPending($userId);
     <h1 class="text-2xl font-bold text-slate-800">Dashboard Admin Supplier</h1>
     <p class="text-slate-500 text-sm mt-1">Pemantauan logistik bahan baku dan status request pembayaran (B2B).</p>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-xl p-5 border border-slate-100 shadow-sm flex items-center">
+        <div class="w-12 h-12 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mr-4"><i class="ph-fill ph-circles-four"></i></div>
+        <div><p class="text-sm text-slate-500 font-medium mb-1">Total Varian Produk</p><h3 class="text-2xl font-bold text-slate-800"><?= $data['total_items'] ?> <span class="text-sm font-normal text-slate-500">Item</span></h3></div>
+    </div>
     <div class="bg-white rounded-xl p-5 border border-slate-100 shadow-sm flex items-center">
         <div class="w-12 h-12 rounded-lg bg-blue-100 text-primary flex items-center justify-center text-2xl mr-4"><i class="ph-fill ph-package"></i></div>
         <div><p class="text-sm text-slate-500 font-medium mb-1">Valuasi Stok Tersedia</p><h3 class="text-xl font-bold text-slate-800">Rp <?= number_format($data['stock_valuation'], 0, ',', '.') ?></h3></div>

@@ -67,11 +67,19 @@ if ($p === 'umkm' && isset($_GET['cart_action'])) {
     
     if ($action === 'increase' && isset($_SESSION['cart'][$idx])) {
         $_SESSION['cart'][$idx]['qty']++;
+        unset($_SESSION['bundle_discount']);
+        unset($_SESSION['bundle_name']);
     } elseif ($action === 'decrease' && isset($_SESSION['cart'][$idx])) {
         $_SESSION['cart'][$idx]['qty']--;
         if ($_SESSION['cart'][$idx]['qty'] <= 0) {
             array_splice($_SESSION['cart'], $idx, 1);
         }
+        unset($_SESSION['bundle_discount']);
+        unset($_SESSION['bundle_name']);
+    } elseif ($action === 'clear') {
+        $_SESSION['cart'] = [];
+        unset($_SESSION['bundle_discount']);
+        unset($_SESSION['bundle_name']);
     }
     
     header('Location: index.php?p=umkm&page=keranjang');
@@ -105,6 +113,13 @@ if ($p === 'supplier') {
                 </span>
             </div>
             <div class="flex items-center space-x-4">
+                <!-- Auto Refresh Status -->
+                <div class="flex items-center text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-semibold transition-all hover:bg-slate-100">
+                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2 animate-ping" id="refresh-dot"></span>
+                    <i class="ph-bold ph-arrows-clockwise mr-1.5 text-slate-400 animate-spin" id="refresh-icon"></i>
+                    <span class="mr-1 hidden sm:inline">Auto Refresh:</span>
+                    <span id="refresh-timer" class="text-[10px] text-slate-600 font-mono">1:00</span>
+                </div>
                 <button class="relative text-slate-400 hover:text-slate-600"><i class="ph ph-bell text-xl"></i>
                     <?php if ($pendingCount > 0): ?><span class="absolute top-0 right-0 -mt-1 -mr-1 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span><?php endif; ?>
                 </button>
@@ -149,6 +164,13 @@ if ($p === 'umkm') {
                 Sistem Terkoneksi: <span class="text-slate-700 font-semibold ml-1">API Gateway & SmartBank</span>
             </div>
             <div class="flex items-center space-x-4">
+                <!-- Auto Refresh Status -->
+                <div class="flex items-center text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-semibold transition-all hover:bg-slate-100">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2 animate-ping" id="refresh-dot"></span>
+                    <i class="ph-bold ph-arrows-clockwise mr-1.5 text-slate-400 animate-spin" id="refresh-icon"></i>
+                    <span class="mr-1 hidden sm:inline">Auto Refresh:</span>
+                    <span id="refresh-timer" class="text-[10px] text-slate-600 font-mono">1:00</span>
+                </div>
                 <button class="relative text-slate-400 hover:text-slate-600"><i class="ph ph-bell text-xl"></i></button>
                 <a href="logout.php" class="text-red-500 hover:text-red-700 flex items-center text-sm font-medium transition-colors bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg"><i class="ph ph-sign-out text-lg mr-1.5"></i> Keluar</a>
             </div>

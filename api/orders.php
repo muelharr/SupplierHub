@@ -40,7 +40,74 @@ switch ($action) {
         }
         unset($ci);
         if (!$found) $_SESSION['cart'][] = ['material_id' => $matId, 'qty' => $qty];
+        
+        // Clear bundle discount since user modified the cart manually
+        unset($_SESSION['bundle_discount']);
+        unset($_SESSION['bundle_name']);
+        
         $response = ['status' => 'success', 'message' => 'Ditambahkan ke keranjang.'];
+        break;
+
+    case 'add_bundle':
+        $user = AuthMiddleware::requireAuth('umkm');
+        $userId = $user['user_id'];
+        
+        // Clear existing cart to hold only bundle items
+        $_SESSION['cart'] = [];
+        $items = $input['items'] ?? [];
+        foreach ($items as $item) {
+            $_SESSION['cart'][] = [
+                'material_id' => (int)$item['material_id'],
+                'qty' => (int)$item['qty']
+            ];
+        }
+        $_SESSION['bundle_discount'] = (int)($input['discount'] ?? 0);
+        $_SESSION['bundle_name'] = $input['bundle_name'] ?? '';
+        
+        $response = ['status' => 'success', 'message' => 'Paket bundling berhasil dipindahkan ke keranjang belanja Anda.'];
+        break;
+
+    case 'subscribe':
+        $user = AuthMiddleware::requireAuth('umkm');
+        $userId = $user['user_id'];
+        $type = $input['subscription_type'] ?? '';
+        $price = (int)($input['price'] ?? 0);
+        
+        if ($type !== 'vip' && $type !== 'gold') {
+            $response = ['status' => 'error', 'message' => 'Tipe langganan tidak valid.'];
+            break;
+        }
+        
+        $_SESSION['subscription'] = $type;
+        
+        $response = [
+            'status' => 'success', 
+            'message' => 'Langganan B2B ' . strtoupper($type) . ' Berhasil Diaktifkan!',
+            'data' => [
+                'type' => $type,
+                'price' => $price,
+                'ref' => 'SB-SUB-' . date('Ymd') . '-' . rand(1000, 9999)
+            ]
+        ];
+        break;
+
+    case 'cancel_subscription':
+        $user = AuthMiddleware::requireAuth('umkm');
+        $userId = $user['user_id'];
+        
+        if (isset($_SESSION['subscription'])) {
+            $oldType = $_SESSION['subscription'];
+            unset($_SESSION['subscription']);
+            $response = [
+                'status' => 'success',
+                'message' => 'Langganan B2B ' . strtoupper($oldType) . ' Berhasil Dibatalkan.'
+            ];
+        } else {
+            $response = [
+                'status' => 'error',
+                'message' => 'Anda tidak memiliki langganan aktif saat ini.'
+            ];
+        }
         break;
 
     case 'checkout':
@@ -51,7 +118,17 @@ switch ($action) {
             $input['items'] = $_SESSION['cart'];
         }
         $response = OrderController::checkout($input, $userId);
-        if ($response['status'] === 'success') { $_SESSION['cart'] = []; }
+        if ($response['status'] === 'success') { 
+            $_SESSION['cart'] = []; 
+            unset($_SESSION['bundle_discount']);
+            unset($_SESSION['bundle_name']);
+        }
+        break;
+
+    case 'direct_checkout':
+        $user = AuthMiddleware::requireAuth('umkm');
+        $userId = $user['user_id'];
+        $response = OrderController::directCheckout($input, $userId);
         break;
 
     case 'pending':

@@ -14,7 +14,7 @@ $materials = Material::getAll();
         <div class="mt-auto pt-3 flex flex-col gap-3 border-t border-slate-50">
             <p class="font-bold text-slate-800 text-lg leading-none">Rp <?= number_format($m['price'],0,',','.') ?><span class="text-xs font-normal text-slate-500 ml-1">/<?= $m['unit'] ?></span></p>
             <button onclick="addToCart(<?= $m['id'] ?>)" class="w-full bg-slate-50 hover:bg-primary hover:text-white text-primary border border-slate-200 hover:border-primary text-sm font-semibold py-2 rounded-lg transition-all flex justify-center items-center">
-                <i class="ph ph-shopping-cart-simple mr-2 text-lg"></i> Beli Bahan
+                <i class="ph ph-shopping-cart-simple mr-2 text-lg"></i> Beli
             </button>
         </div>
     </div>

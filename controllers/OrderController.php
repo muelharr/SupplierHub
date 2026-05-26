@@ -40,7 +40,8 @@ class OrderController {
         }
 
         try {
-            $result = Order::create($umkm_id, $data['supplier_id'], $data['items']);
+            $discount = isset($data['discount']) ? (int)$data['discount'] : 0;
+            $result = Order::create($umkm_id, $data['supplier_id'], $data['items'], $discount);
             return [
                 'status'  => 'success',
                 'message' => 'Pesanan berhasil dibuat. Menunggu konfirmasi supplier.',
@@ -48,6 +49,113 @@ class OrderController {
             ];
         } catch (Exception $e) {
             return ['status' => 'error', 'message' => 'Gagal membuat pesanan: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * UMKM: Create and pay bundle order directly (Shopee/Gojek flow)
+     */
+    public static function directCheckout($data, $umkm_id) {
+        if (empty($data['items']) || !is_array($data['items'])) {
+            return ['status' => 'error', 'message' => 'Items pesanan wajib diisi.'];
+        }
+
+        if (empty($data['supplier_id'])) {
+            return ['status' => 'error', 'message' => 'Supplier ID wajib diisi.'];
+        }
+
+        $db = getDB();
+        $db->beginTransaction();
+
+        try {
+            $subtotal = 0;
+            // Validate stock and price for each item
+            foreach ($data['items'] as $item) {
+                $matId = $item['material_id'];
+                $qty = $item['qty'];
+
+                $stmt = $db->prepare("SELECT stock, price, name FROM materials WHERE id = :id");
+                $stmt->execute(['id' => $matId]);
+                $mat = $stmt->fetch();
+
+                if (!$mat) {
+                    throw new Exception("Bahan baku tidak ditemukan.");
+                }
+
+                if ($mat['stock'] < $qty) {
+                    throw new Exception("Stok untuk " . $mat['name'] . " tidak mencukupi. Tersedia: " . $mat['stock'] . ", Dibutuhkan: " . $qty);
+                }
+
+                $subtotal += $mat['price'] * $qty;
+            }
+
+            // Deduct stock for each item
+            foreach ($data['items'] as $item) {
+                Material::reduceStock($item['material_id'], $item['qty']);
+            }
+
+            // Aturan #3: Fee supplier 3%
+            $fee = (int) round($subtotal * FEE_SUPPLIER);
+            $discount = isset($data['discount']) ? (int)$data['discount'] : 0;
+            $total = ($subtotal + $fee) - $discount;
+            if ($total < 0) $total = 0;
+
+            // Generate order code
+            $orderCode = 'ORD-B2B-' . str_pad(rand(100, 999), 3, '0', STR_PAD_LEFT) . '-PMP';
+            $voucherName = !empty($data['voucher_name']) ? $data['voucher_name'] : '';
+            $ref = 'SB-REF-' . date('Ymd') . '-' . rand(1000, 9999) . ($voucherName ? '-VC-' . strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $voucherName), 0, 3)) : '');
+
+            // Insert completed order directly
+            $stmt = $db->prepare("
+                INSERT INTO orders (order_code, umkm_id, supplier_id, status, subtotal, fee_supplier, total, smartbank_ref, completed_at)
+                VALUES (:code, :umkm, :supplier, 'completed', :subtotal, :fee, :total, :ref, NOW())
+            ");
+            $stmt->execute([
+                'code'     => $orderCode,
+                'umkm'     => $umkm_id,
+                'supplier' => $data['supplier_id'],
+                'subtotal' => $subtotal,
+                'fee'      => $fee,
+                'total'    => $total,
+                'ref'      => $ref
+            ]);
+            $orderId = $db->lastInsertId();
+
+            // Insert order items
+            $stmt = $db->prepare("
+                INSERT INTO order_items (order_id, material_id, qty, price_at_order)
+                VALUES (:order_id, :material_id, :qty, :price)
+            ");
+            foreach ($data['items'] as $item) {
+                // Fetch price again just to be secure
+                $stmtPrice = $db->prepare("SELECT price FROM materials WHERE id = :id");
+                $stmtPrice->execute(['id' => $item['material_id']]);
+                $price = $stmtPrice->fetch()['price'];
+
+                $stmt->execute([
+                    'order_id'    => $orderId,
+                    'material_id' => $item['material_id'],
+                    'qty'         => $item['qty'],
+                    'price'       => $price
+                ]);
+            }
+
+            $db->commit();
+
+            return [
+                'status'  => 'success',
+                'message' => 'Pembayaran Berhasil! Transaksi selesai via SmartBank.',
+                'data'    => [
+                    'order_id'   => $orderId,
+                    'order_code' => $orderCode,
+                    'total'      => $total,
+                    'ref'        => $ref
+                ]
+            ];
+
+        } catch (Exception $e) {
+            $db->rollBack();
+            return ['status' => 'error', 'message' => 'Gagal memproses pembayaran: ' . $e->getMessage()];
         }
     }
 

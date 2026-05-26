@@ -99,34 +99,18 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
                 <div id="view-login" class="fade-enter-active">
                     <div class="text-center mb-8 lg:mb-10">
                         <h3 class="text-3xl font-extrabold text-slate-900 tracking-tight">Masuk ke Portal</h3>
-                        <p class="text-slate-500 text-sm mt-2 font-medium">Pilih peran bisnis Anda untuk melanjutkan.</p>
+                        <p class="text-slate-500 text-sm mt-2 font-medium">Akses portal bisnis B2BLink Anda di bawah ini.</p>
                     </div>
                     <form onsubmit="handleLogin(event)" class="space-y-5 lg:space-y-6 max-w-md mx-auto">
-                        <div class="grid grid-cols-2 gap-4 sm:gap-5">
-                            <label class="relative cursor-pointer group">
-                                <input type="radio" name="login_role" value="umkm" class="peer sr-only" checked onchange="updateTheme('umkm')">
-                                <div class="p-4 sm:p-5 rounded-3xl border-2 border-transparent bg-white shadow-sm peer-checked:border-emerald-500 peer-checked:ring-4 peer-checked:ring-emerald-500/10 transition-all text-center relative overflow-hidden group-hover:shadow-md">
-                                    <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto bg-slate-50 peer-checked:bg-emerald-50 text-slate-400 peer-checked:text-emerald-500 rounded-2xl flex items-center justify-center mb-3 transition-colors group-hover:-translate-y-1 duration-300 border border-slate-100 peer-checked:border-emerald-100"><i class="ph-fill ph-storefront text-2xl sm:text-3xl"></i></div>
-                                    <p class="font-extrabold text-slate-700 text-sm peer-checked:text-emerald-700">UMKM</p>
-                                </div>
-                            </label>
-                            <label class="relative cursor-pointer group">
-                                <input type="radio" name="login_role" value="supplier" class="peer sr-only" onchange="updateTheme('supplier')">
-                                <div class="p-4 sm:p-5 rounded-3xl border-2 border-transparent bg-white shadow-sm peer-checked:border-blue-500 peer-checked:ring-4 peer-checked:ring-blue-500/10 transition-all text-center relative overflow-hidden group-hover:shadow-md">
-                                    <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto bg-slate-50 peer-checked:bg-blue-50 text-slate-400 peer-checked:text-blue-500 rounded-2xl flex items-center justify-center mb-3 transition-colors group-hover:-translate-y-1 duration-300 border border-slate-100 peer-checked:border-blue-100"><i class="ph-fill ph-package text-2xl sm:text-3xl"></i></div>
-                                    <p class="font-extrabold text-slate-700 text-sm peer-checked:text-blue-700">Supplier</p>
-                                </div>
-                            </label>
-                        </div>
                         <div class="space-y-4 sm:space-y-5">
-                            <div class="input-group" style="--focus-color:#10b981;" id="login-email-group">
+                            <div class="input-group" style="--focus-color:#3b82f6;" id="login-email-group">
                                 <label class="block text-xs sm:text-sm font-bold text-slate-700 mb-2 transition-colors tracking-wide">Email Bisnis</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-envelope-simple text-lg sm:text-xl text-slate-400"></i></div>
                                     <input type="email" required class="block w-full pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 border-2 border-slate-200/60 rounded-2xl focus:ring-0 outline-none transition-all bg-white text-slate-800 font-semibold text-sm sm:text-base hover:border-slate-300 shadow-sm" placeholder="email@bisnis.com" value="supplier@b2blink.com" id="login-email">
                                 </div>
                             </div>
-                            <div class="input-group" style="--focus-color:#10b981;" id="login-password-group">
+                            <div class="input-group" style="--focus-color:#3b82f6;" id="login-password-group">
                                 <div class="flex justify-between items-center mb-2">
                                     <label class="block text-xs sm:text-sm font-bold text-slate-700 transition-colors tracking-wide">Kata Sandi</label>
                                 </div>
@@ -136,7 +120,7 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-extrabold py-4 px-4 rounded-2xl transition-all shadow-lg shadow-emerald-500/30 flex justify-center items-center text-base sm:text-lg mt-6 sm:mt-8 hover:-translate-y-1">
+                        <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-extrabold py-4 px-4 rounded-2xl transition-all shadow-lg shadow-blue-500/30 flex justify-center items-center text-base sm:text-lg mt-6 sm:mt-8 hover:-translate-y-1">
                             Masuk Sistem <i class="ph-bold ph-arrow-right ml-2 text-lg sm:text-xl"></i>
                         </button>
                     </form>
@@ -234,14 +218,14 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
             const spinner = document.getElementById('loading-spinner');
             const text = document.getElementById('loading-text');
             const sub = document.getElementById('loading-subtext');
-            const role = document.querySelector('input[name="login_role"]:checked').value;
 
             overlay.classList.remove('hidden'); overlay.classList.add('flex');
             setTimeout(() => { overlay.classList.remove('opacity-0'); overlay.classList.add('opacity-100'); }, 10);
 
-            spinner.className = `absolute inset-0 rounded-full border-4 ${role==='umkm'?'border-emerald-500':'border-blue-500'} border-t-transparent animate-spin`;
-            text.innerText = role === 'umkm' ? 'Menyiapkan Portal UMKM...' : 'Menyiapkan SupplierHub...';
-            sub.innerText = role === 'umkm' ? 'Menghubungkan ke Katalog Supplier' : 'Memuat Data Gudang & Pesanan';
+            // Neutral professional brand loading state initially
+            spinner.className = `absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin`;
+            text.innerText = 'Mengautentikasi...';
+            sub.innerText = 'Memverifikasi kredensial akun Anda';
 
             const res = await fetch(BASE + '/api/auth.php?action=login', {
                 method: 'POST',
@@ -254,12 +238,17 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
 
             if (res.status === 'success') {
                 localStorage.setItem('jwt_token', res.data.token);
-                text.innerText = 'Login Berhasil!';
-                sub.innerText = 'Mengalihkan ke Workspace...';
+                
+                const role = res.data.role;
+                text.innerText = role === 'umkm' ? 'Portal UMKM Siap!' : 'SupplierHub Siap!';
+                sub.innerText = role === 'umkm' ? 'Menghubungkan ke Katalog Supplier' : 'Memuat Data Gudang & Pesanan';
+                
                 spinner.classList.remove('border-t-transparent','animate-spin');
                 spinner.innerHTML = '<i class="ph-bold ph-check text-white text-4xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>';
+                
                 const c = role === 'umkm' ? 'emerald' : 'blue';
                 spinner.className = `absolute inset-0 rounded-full border-4 border-${c}-500 bg-${c}-500`;
+                
                 setTimeout(() => { window.location.href = res.data.redirect; }, 800);
             } else {
                 overlay.classList.add('opacity-0'); overlay.classList.remove('opacity-100');
@@ -295,7 +284,7 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
             }
         }
 
-        window.onload = () => { updateTheme('umkm'); };
+        window.onload = () => { updateTheme('supplier'); };
     </script>
 </body>
 </html>

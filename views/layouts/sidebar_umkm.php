@@ -42,8 +42,17 @@
                 <?= strtoupper(substr($userName ?? 'WB', 0, 2)) ?>
             </div>
             <div class="ml-3">
-                <p class="text-sm font-medium"><?= htmlspecialchars($userName ?? 'Warung Bu Ani') ?></p>
-                <p class="text-xs text-slate-400">Node POS</p>
+                <?php
+                $sub = $_SESSION['subscription'] ?? '';
+                $badge = '';
+                if ($sub === 'vip') {
+                    $badge = ' <i class="ph-fill ph-crown text-yellow-400" title="VIP Member"></i>';
+                } elseif ($sub === 'gold') {
+                    $badge = ' <i class="ph-fill ph-star text-amber-400" title="Gold Partner"></i>';
+                }
+                ?>
+                <p class="text-sm font-medium flex items-center gap-1.5"><?= htmlspecialchars($userName ?? 'Warung Bu Ani') ?><?= $badge ?></p>
+                <p class="text-xs text-slate-400"><?= $sub === 'vip' ? 'VIP Member' : ($sub === 'gold' ? 'Gold Partner' : 'Node POS') ?></p>
             </div>
         </div>
     </div>
