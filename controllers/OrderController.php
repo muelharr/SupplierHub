@@ -15,6 +15,7 @@ require_once __DIR__ . '/../services/SmartBankService.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../middleware/GatewayMiddleware.php';
 require_once __DIR__ . '/../middleware/LoggerMiddleware.php';
+require_once __DIR__ . '/../models/Payment.php';
 
 class OrderController {
 
@@ -89,12 +90,7 @@ class OrderController {
                 $subtotal += $mat['price'] * $qty;
             }
 
-            // Deduct stock for each item
-            foreach ($data['items'] as $item) {
-                Material::reduceStock($item['material_id'], $item['qty']);
-            }
-
-            // Aturan #3: Fee supplier 3%
+            // Calculate 3% Margin
             $fee = (int) round($subtotal * FEE_SUPPLIER);
             $discount = isset($data['discount']) ? (int)$data['discount'] : 0;
             $total = ($subtotal + $fee) - $discount;
@@ -102,8 +98,32 @@ class OrderController {
 
             // Generate order code
             $orderCode = 'ORD-B2B-' . str_pad(rand(100, 999), 3, '0', STR_PAD_LEFT) . '-PMP';
-            $voucherName = !empty($data['voucher_name']) ? $data['voucher_name'] : '';
-            $ref = 'SB-REF-' . date('Ymd') . '-' . rand(1000, 9999) . ($voucherName ? '-VC-' . strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $voucherName), 0, 3)) : '');
+
+            // DEPENDENCY INVERSION (SOLID): Gunakan PaymentGatewayInterface
+            /** @var PaymentGatewayInterface $gateway */
+            $gateway = 'SmartBankService';
+            $paymentResponse = $gateway::pay(
+                $umkm_id,
+                $subtotal - $discount,
+                $fee,
+                "Direct payment for order {$orderCode}"
+            );
+
+            // EVALUASI STOK BERDASARKAN RESPONS SMARTBANK
+            if ($paymentResponse['status'] !== 'success') {
+                throw new Exception('Pembayaran ditolak oleh SmartBank: ' . ($paymentResponse['message'] ?? 'Unknown error'));
+            }
+
+            // Deduct stock for each item ONLY after success
+            foreach ($data['items'] as $item) {
+                Material::reduceStock($item['material_id'], $item['qty']);
+            }
+
+            $ref = $paymentResponse['data']['payment_id'] ?? ('SB-REF-' . date('Ymd') . '-' . rand(1000, 9999));
+
+            // Log ke tabel payments lokal (Buku Kas)
+            Payment::create($umkm_id, 'debit', $total, "Pembayaran pesanan {$orderCode}", $ref);
+            Payment::create($data['supplier_id'], 'credit', $subtotal - $discount, "Penerimaan dana pesanan {$orderCode}", $ref);
 
             // Insert completed order directly
             $stmt = $db->prepare("
@@ -223,14 +243,17 @@ class OrderController {
             }
         }
 
-        // Send payment request to SmartBank (Aturan #3: Semua transaksi → SmartBank)
-        $paymentResponse = SmartBankService::pay(
+        // DEPENDENCY INVERSION (SOLID): Gunakan PaymentGatewayInterface
+        /** @var PaymentGatewayInterface $gateway */
+        $gateway = 'SmartBankService';
+        $paymentResponse = $gateway::pay(
             $order['umkm_id'],
             $order['subtotal'],
-            $order['fee_supplier'],
+            $order['fee_supplier'], // which is exactly 3% calculated when order was created
             "Payment for order {$order['order_code']} from {$order['umkm_name']}"
         );
 
+        // EVALUASI STOK BERDASARKAN RESPONS SMARTBANK
         if ($paymentResponse['status'] !== 'success') {
             return [
                 'status'  => 'error',
@@ -238,7 +261,7 @@ class OrderController {
             ];
         }
 
-        // Reduce stock
+        // Reduce stock ONLY after payment success
         foreach ($order['items'] as $item) {
             Material::reduceStock($item['material_id'], $item['qty']);
         }
@@ -246,6 +269,10 @@ class OrderController {
         // Update order status
         $smartbankRef = $paymentResponse['data']['payment_id'] ?? null;
         Order::approve($order_id, $smartbankRef);
+
+        // Log ke tabel payments lokal (Buku Kas)
+        Payment::create($order['umkm_id'], 'debit', $order['total'], "Pembayaran pesanan {$order['order_code']}", $smartbankRef);
+        Payment::create($order['supplier_id'], 'credit', $order['subtotal'], "Penerimaan dana pesanan {$order['order_code']}", $smartbankRef);
 
         return [
             'status'  => 'success',

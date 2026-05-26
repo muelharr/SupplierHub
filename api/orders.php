@@ -113,13 +113,23 @@ switch ($action) {
     case 'checkout':
         $user = AuthMiddleware::requireAuth('umkm');
         $userId = $user['user_id'];
-        // If checkout from cart session
+        // If checkout from cart session, use directCheckout (SmartBank + 3% fee)
         if (!empty($input['from_cart']) && isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
             $input['items'] = $_SESSION['cart'];
+            // Resolve supplier_id from the first item in cart if not provided
+            if (empty($input['supplier_id'])) {
+                $db = getDB();
+                $firstMatId = $_SESSION['cart'][0]['material_id'] ?? 0;
+                $stmtSupp = $db->prepare("SELECT supplier_id FROM materials WHERE id = :id");
+                $stmtSupp->execute(['id' => $firstMatId]);
+                $matRow = $stmtSupp->fetch();
+                $input['supplier_id'] = $matRow['supplier_id'] ?? 1;
+            }
         }
-        $response = OrderController::checkout($input, $userId);
-        if ($response['status'] === 'success') { 
-            $_SESSION['cart'] = []; 
+        // Use directCheckout to trigger SmartBank payment + 3% margin + stock gating
+        $response = OrderController::directCheckout($input, $userId);
+        if ($response['status'] === 'success') {
+            $_SESSION['cart'] = [];
             unset($_SESSION['bundle_discount']);
             unset($_SESSION['bundle_name']);
         }

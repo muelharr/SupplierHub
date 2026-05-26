@@ -133,6 +133,7 @@ if ($p === 'supplier') {
                 case 'manajemen': require __DIR__ . '/views/supplier/manajemen.php'; break;
                 case 'pesanan':   require __DIR__ . '/views/supplier/pesanan.php'; break;
                 case 'laporan':   require __DIR__ . '/views/supplier/laporan.php'; break;
+                case 'keuangan':  require __DIR__ . '/views/supplier/keuangan.php'; break;
                 default:          require __DIR__ . '/views/supplier/dashboard.php'; break;
             }
             ?>
@@ -181,6 +182,7 @@ if ($p === 'umkm') {
                 case 'katalog':   require __DIR__ . '/views/umkm/katalog.php'; break;
                 case 'keranjang': require __DIR__ . '/views/umkm/keranjang.php'; break;
                 case 'riwayat':   require __DIR__ . '/views/umkm/riwayat.php'; break;
+                case 'keuangan':  require __DIR__ . '/views/umkm/keuangan.php'; break;
                 default:          require __DIR__ . '/views/umkm/dashboard.php'; break;
             }
             ?>

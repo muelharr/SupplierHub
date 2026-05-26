@@ -27,6 +27,10 @@
             class="nav-btn w-full flex items-center px-3 py-2.5 rounded-lg <?= ($currentPage ?? '') === 'laporan' ? 'bg-primary text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?> font-medium transition-colors">
             <i class="ph ph-chart-line-up text-xl mr-3"></i> Laporan Tagihan
         </a>
+        <a href="index.php?p=supplier&page=keuangan" id="nav-keuangan"
+            class="nav-btn w-full flex items-center px-3 py-2.5 rounded-lg <?= ($currentPage ?? '') === 'keuangan' ? 'bg-primary text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?> font-medium transition-colors">
+            <i class="ph ph-wallet text-xl mr-3"></i> Keuangan & Neraca
+        </a>
     </nav>
 
     <div class="p-4 border-t border-slate-700">

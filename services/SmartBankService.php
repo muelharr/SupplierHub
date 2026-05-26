@@ -11,8 +11,9 @@
 
 require_once __DIR__ . '/../config/constants.php';
 require_once __DIR__ . '/../middleware/GatewayMiddleware.php';
+require_once __DIR__ . '/../contracts/PaymentGatewayInterface.php';
 
-class SmartBankService {
+class SmartBankService implements PaymentGatewayInterface {
 
     /**
      * Send payment request to SmartBank

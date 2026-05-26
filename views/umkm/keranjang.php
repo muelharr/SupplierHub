@@ -91,12 +91,89 @@ $grandTotal = max(0, $subtotal + $fee - $bundleDiscount - $subDiscount);
                 <i class="ph-fill ph-bank mt-0.5 mr-2 text-lg"></i>
                 <p>Pembayaran akan otomatis memotong saldo <strong>SmartBank</strong> Anda melalui API Gateway.</p>
             </div>
-            <button onclick="processCheckout()" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center shadow-md">
+            <button onclick="openSmartBankModal()" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center shadow-md">
                 <i class="ph ph-wallet mr-2 text-lg"></i> Bayar via SmartBank
             </button>
         </div>
     </div>
 </div>
+
+<!-- SmartBank Checkout Modal -->
+<div id="smartbank-checkout-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-all duration-300 opacity-0">
+    <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 overflow-hidden transform scale-95 transition-all duration-300 flex flex-col relative" id="smartbank-checkout-card">
+        
+        <!-- Multi-stage Payment Loader -->
+        <div id="sb-payment-loader" class="absolute inset-0 bg-white/95 backdrop-blur-md z-50 hidden flex-col items-center justify-center p-6 text-center transition-all duration-300">
+            <div class="w-20 h-20 relative mb-6">
+                <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+                <div id="sb-payment-spinner" class="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
+                <div id="sb-payment-success-icon" class="absolute inset-0 rounded-full bg-emerald-500 flex items-center justify-center hidden transform scale-0 transition-transform duration-500">
+                    <i class="ph-bold ph-check text-white text-4xl"></i>
+                </div>
+            </div>
+            <h3 id="sb-payment-status-title" class="text-xl font-extrabold text-slate-800 mb-2 tracking-tight">Otorisasi SmartBank...</h3>
+            <p id="sb-payment-status-sub" class="text-xs font-medium text-slate-500">Memverifikasi token keamanan transaksi</p>
+        </div>
+
+        <!-- Modal Header (SmartBank Theme) -->
+        <div class="px-5 py-4 bg-emerald-600 text-white border-b border-emerald-700 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-lg"><i class="ph-fill ph-bank"></i></div>
+                <div>
+                    <h3 class="font-extrabold text-sm">SmartBank SecurePay</h3>
+                    <p class="text-[10px] text-emerald-200">B2B Link Gateway</p>
+                </div>
+            </div>
+            <button onclick="closeSmartBankModal()" class="w-8 h-8 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center transition-all outline-none">
+                <i class="ph-bold ph-x text-base"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-5 space-y-4">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                <p class="text-xs text-slate-500 mb-1">Total Pembayaran</p>
+                <h3 class="text-3xl font-extrabold text-slate-800">Rp <?= number_format($grandTotal, 0, ',', '.') ?></h3>
+            </div>
+            
+            <div class="space-y-3 bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500">Merchant</span>
+                    <span class="font-bold text-slate-800">SupplierHub B2B</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500">Sumber Dana</span>
+                    <span class="font-bold text-emerald-600"><i class="ph-fill ph-wallet mr-1"></i> Saldo SmartBank</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500">Nomor Referensi</span>
+                    <span class="font-mono text-slate-800">SB-<?= date('ymd') ?>-XXXX</span>
+                </div>
+            </div>
+            
+            <div class="pt-2">
+                <label class="block text-xs font-bold text-slate-700 mb-2">PIN SmartBank (Simulasi)</label>
+                <div class="flex gap-2 justify-center">
+                    <input type="password" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" value="1">
+                    <input type="password" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" value="2">
+                    <input type="password" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" value="3">
+                    <input type="password" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" value="4">
+                    <input type="password" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" value="5">
+                    <input type="password" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" value="6">
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-5 py-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+            <button onclick="closeSmartBankModal()" class="flex-1 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all">Batal</button>
+            <button onclick="processCheckout()" class="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-500/30 transition-all flex justify-center items-center gap-2">
+                <i class="ph-fill ph-lock-key"></i> Konfirmasi Pembayaran
+            </button>
+        </div>
+    </div>
+</div>
+
 <?php endif; ?>
 
 <script>
@@ -115,8 +192,41 @@ function clearCart() {
     }
 }
 
+function openSmartBankModal() {
+    const modal = document.getElementById('smartbank-checkout-modal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        document.getElementById('smartbank-checkout-card').classList.remove('scale-95');
+    }, 10);
+}
+
+function closeSmartBankModal() {
+    const modal = document.getElementById('smartbank-checkout-modal');
+    modal.classList.add('opacity-0');
+    document.getElementById('smartbank-checkout-card').classList.add('scale-95');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
 async function processCheckout(){
-    showToast('Memproses pembayaran melalui API Gateway...','info');
+    const loader = document.getElementById('sb-payment-loader');
+    const title = document.getElementById('sb-payment-status-title');
+    const sub = document.getElementById('sb-payment-status-sub');
+    const spinner = document.getElementById('sb-payment-spinner');
+    const checkIcon = document.getElementById('sb-payment-success-icon');
+    
+    // Show Loader
+    loader.classList.remove('hidden');
+    loader.style.opacity = '1';
+
+    title.innerText = 'Otorisasi SmartBank...';
+    sub.innerText = 'Memverifikasi token keamanan transaksi';
+    await new Promise(r => setTimeout(r, 800));
+
+    title.innerText = 'Memproses Pembayaran...';
+    sub.innerText = 'Menghubungi API Gateway';
     
     const totalDiscount = cartState.bundleDiscount + cartState.subDiscount;
     let discountName = '';
@@ -128,16 +238,28 @@ async function processCheckout(){
         discountName += '<?= $subscription === 'vip' ? 'Diskon VIP Member (5%)' : 'Diskon Gold Partner (10%)' ?>';
     }
 
-    const r=await apiCall(BASE+'/api/orders.php?action=checkout','POST',{
+    const r = await apiCall(BASE+'/api/orders.php?action=checkout','POST',{
         supplier_id: 1, 
         from_cart: true,
         discount: totalDiscount,
         voucher_name: discountName
     });
+    
+    await new Promise(r => setTimeout(r, 800));
+
     if(r.status==='success'){
-        showToast('Pesanan berhasil dibuat!');
-        setTimeout(()=>window.location.href=BASE+'/index.php?p=umkm&page=riwayat',1500);
+        title.innerText = 'Pembayaran Berhasil!';
+        sub.innerText = 'Transaksi telah selesai diverifikasi.';
+        spinner.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        setTimeout(() => {
+            checkIcon.classList.add('scale-100');
+        }, 50);
+
+        setTimeout(() => window.location.href = BASE+'/index.php?p=umkm&page=riwayat', 1500);
+    } else {
+        closeSmartBankModal();
+        showToast(r.message,'error');
     }
-    else showToast(r.message,'error');
 }
 </script>
