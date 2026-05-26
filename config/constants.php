@@ -23,4 +23,16 @@ define('GATEWAY_API_URL', 'http://localhost/APIGateway/api');
 // Application
 define('APP_NAME', 'SupplierHub B2B');
 define('APP_VERSION', '1.0.0');
-define('BASE_URL', '/SupplierHub');
+
+// Auto-detect BASE_URL:
+// - Laragon/Apache: http://localhost/SupplierHub → BASE_URL = '/SupplierHub'
+// - PHP built-in server: http://localhost:8000   → BASE_URL = ''
+$_port = $_SERVER['SERVER_PORT'] ?? 80;
+if ((int)$_port !== 80 && (int)$_port !== 443) {
+    // PHP built-in server atau port non-standar → root langsung
+    define('BASE_URL', '');
+} else {
+    // Laragon / Apache → ada subfolder
+    define('BASE_URL', '/SupplierHub');
+}
+unset($_port);
