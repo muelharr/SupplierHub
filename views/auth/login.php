@@ -107,7 +107,7 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
                                 <label class="block text-xs sm:text-sm font-bold text-slate-700 mb-2 transition-colors tracking-wide">Email Bisnis</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-envelope-simple text-lg sm:text-xl text-slate-400"></i></div>
-                                    <input type="email" required class="block w-full pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 border-2 border-slate-200/60 rounded-2xl focus:ring-0 outline-none transition-all bg-white text-slate-800 font-semibold text-sm sm:text-base hover:border-slate-300 shadow-sm" placeholder="email@bisnis.com" value="supplier@b2blink.com" id="login-email">
+                                    <input type="email" required class="block w-full pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 border-2 border-slate-200/60 rounded-2xl focus:ring-0 outline-none transition-all bg-white text-slate-800 font-semibold text-sm sm:text-base hover:border-slate-300 shadow-sm" placeholder="email@bisnis.com" id="login-email">
                                 </div>
                             </div>
                             <div class="input-group" style="--focus-color:#3b82f6;" id="login-password-group">
@@ -116,7 +116,7 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
                                 </div>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-lock-key text-lg sm:text-xl text-slate-400"></i></div>
-                                    <input type="password" required class="block w-full pl-11 sm:pl-12 pr-12 py-3 sm:py-3.5 border-2 border-slate-200/60 rounded-2xl focus:ring-0 outline-none transition-all bg-white text-slate-800 font-semibold text-sm sm:text-base hover:border-slate-300 shadow-sm" placeholder="••••••••" value="password123" id="login-password">
+                                    <input type="password" required class="block w-full pl-11 sm:pl-12 pr-12 py-3 sm:py-3.5 border-2 border-slate-200/60 rounded-2xl focus:ring-0 outline-none transition-all bg-white text-slate-800 font-semibold text-sm sm:text-base hover:border-slate-300 shadow-sm" placeholder="••••••••" id="login-password">
                                 </div>
                             </div>
                         </div>
@@ -133,25 +133,7 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
                         <p class="text-slate-500 text-sm mt-2 font-medium">Bergabung dengan ekosistem B2B terintegrasi hari ini.</p>
                     </div>
                     <form onsubmit="handleRegister(event)" class="space-y-4 sm:space-y-5 max-w-md mx-auto">
-                        <div>
-                            <label class="block text-xs sm:text-sm font-bold text-slate-700 mb-2 sm:mb-3 tracking-wide">Pilih Tipe Entitas</label>
-                            <div class="flex gap-3 sm:gap-4">
-                                <label class="flex-1 relative cursor-pointer group">
-                                    <input type="radio" name="reg_role" value="umkm" class="peer sr-only" checked>
-                                    <div class="py-2.5 sm:py-3 px-3 sm:px-4 rounded-2xl border-2 border-transparent bg-white shadow-sm peer-checked:border-emerald-500 peer-checked:ring-4 peer-checked:ring-emerald-500/10 transition-all text-center flex justify-center items-center gap-2 group-hover:shadow-md">
-                                        <i class="ph-fill ph-storefront text-slate-400 peer-checked:text-emerald-500 text-lg"></i>
-                                        <span class="font-extrabold text-slate-700 text-sm">UMKM</span>
-                                    </div>
-                                </label>
-                                <label class="flex-1 relative cursor-pointer group">
-                                    <input type="radio" name="reg_role" value="supplier" class="peer sr-only">
-                                    <div class="py-2.5 sm:py-3 px-3 sm:px-4 rounded-2xl border-2 border-transparent bg-white shadow-sm peer-checked:border-blue-500 peer-checked:ring-4 peer-checked:ring-blue-500/10 transition-all text-center flex justify-center items-center gap-2 group-hover:shadow-md">
-                                        <i class="ph-fill ph-package text-slate-400 peer-checked:text-blue-500 text-lg"></i>
-                                        <span class="font-extrabold text-slate-700 text-sm">Supplier</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+
                         <div class="space-y-3 sm:space-y-4">
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="ph-fill ph-buildings text-lg sm:text-xl text-slate-400"></i></div>
@@ -271,7 +253,7 @@ $pageTitle = 'Masuk / Daftar - B2BLink';
                     name: document.getElementById('reg-name').value,
                     email: document.getElementById('reg-email').value,
                     password: document.getElementById('reg-password').value,
-                    role: document.querySelector('input[name="reg_role"]:checked').value
+                    role: 'umkm'
                 })
             }).then(r => r.json());
 

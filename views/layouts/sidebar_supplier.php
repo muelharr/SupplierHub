@@ -33,15 +33,4 @@
         </a>
     </nav>
 
-    <div class="p-4 border-t border-slate-700">
-        <div class="flex items-center">
-            <div class="w-8 h-8 rounded-full bg-blue-900 border border-blue-700 flex items-center justify-center text-sm font-bold text-blue-200">
-                <?= strtoupper(substr($userName ?? 'PT', 0, 2)) ?>
-            </div>
-            <div class="ml-3">
-                <p class="text-sm font-medium"><?= htmlspecialchars($userName ?? 'PT. Sumber Pangan') ?></p>
-                <p class="text-xs text-blue-400">Node Supplier B2B</p>
-            </div>
-        </div>
-    </div>
 </aside>

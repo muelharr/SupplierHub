@@ -59,13 +59,12 @@ class AuthController {
      */
     public static function register($data) {
         // Validate input
-        if (empty($data['name']) || empty($data['email']) || empty($data['password']) || empty($data['role'])) {
+        if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
             return ['status' => 'error', 'message' => 'Semua field wajib diisi.'];
         }
 
-        if (!in_array($data['role'], ['umkm', 'supplier'])) {
-            return ['status' => 'error', 'message' => 'Role tidak valid.'];
-        }
+        // Force role to umkm - only UMKM can register via public form
+        $data['role'] = 'umkm';
 
         if (strlen($data['password']) < 8) {
             return ['status' => 'error', 'message' => 'Password minimal 8 karakter.'];

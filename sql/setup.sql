@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS payments (
 
 -- Users (password = bcrypt hash of 'password123')
 INSERT INTO users (id, name, email, password, role) VALUES
-(1, 'PT. Sumber Pangan', 'supplier@b2blink.com', '$2y$10$mWm02z6ClvVWIBal.MbSbOl0b5gCKdALG6LHWXIJlZvEeqaf/WWZW', 'supplier'),
+(1, 'SupplierHub', 'supplier@b2blink.com', '$2y$10$mWm02z6ClvVWIBal.MbSbOl0b5gCKdALG6LHWXIJlZvEeqaf/WWZW', 'supplier'),
 (2, 'Warung Bu Ani', 'umkm@b2blink.com', '$2y$10$mWm02z6ClvVWIBal.MbSbOl0b5gCKdALG6LHWXIJlZvEeqaf/WWZW', 'umkm');
 
 -- Materials (sesuai data asli di supplierhub.html)
