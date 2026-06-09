@@ -28,6 +28,13 @@ if ($subscription === 'vip') {
 
 $grandTotal = max(0, $subtotal + $fee - $bundleDiscount - $subDiscount);
 ?>
+<style>
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+</style>
 <div class="mb-6"><h1 class="text-2xl font-bold text-slate-800">Keranjang Belanja</h1><p class="text-slate-500 text-sm mt-1">Review pesanan dan proses pembayaran melalui SmartBank.</p></div>
 
 <?php if (empty($cartItems)): ?>
@@ -55,7 +62,7 @@ $grandTotal = max(0, $subtotal + $fee - $bundleDiscount - $subDiscount);
             <div class="flex items-center">
                 <div class="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-slate-50 mr-4">
                     <a href="index.php?p=umkm&page=keranjang&cart_action=decrease&idx=<?= $idx ?>" class="px-3 py-1 hover:bg-slate-200 text-slate-600 font-bold transition-colors">-</a>
-                    <div class="px-3 py-1 bg-white text-sm font-bold min-w-[2.5rem] text-center border-x border-slate-200"><?= $item['cart_qty'] ?></div>
+                    <input type="number" min="1" value="<?= $item['cart_qty'] ?>" onchange="updateQty(<?= $idx ?>, this.value)" class="w-12 py-1 bg-white text-sm font-bold text-center border-y-0 border-x border-slate-200 focus:outline-none" style="-moz-appearance: textfield; margin: 0;">
                     <a href="index.php?p=umkm&page=keranjang&cart_action=increase&idx=<?= $idx ?>" class="px-3 py-1 hover:bg-slate-200 text-slate-600 font-bold transition-colors">+</a>
                 </div>
                 <div class="w-24 text-right"><div class="font-bold text-slate-800 text-sm">Rp <?= number_format($item['item_total'],0,',','.') ?></div></div>
@@ -260,6 +267,19 @@ async function processCheckout(){
     } else {
         closeSmartBankModal();
         showToast(r.message,'error');
+    }
+}
+
+function updateQty(idx, val) {
+    const qty = parseInt(val);
+    if (isNaN(qty) || qty <= 0) {
+        if (confirm('Apakah Anda yakin ingin menghapus bahan baku ini dari keranjang belanja?')) {
+            window.location.href = 'index.php?p=umkm&page=keranjang&cart_action=update&idx=' + idx + '&qty=0';
+        } else {
+            window.location.reload();
+        }
+    } else {
+        window.location.href = 'index.php?p=umkm&page=keranjang&cart_action=update&idx=' + idx + '&qty=' + qty;
     }
 }
 </script>

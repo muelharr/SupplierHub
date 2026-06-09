@@ -465,9 +465,15 @@ $cartCount = count($_SESSION['cart'] ?? []);
 // Fetch balance from SmartBank
 (async()=>{
     try {
-        const r = await fetch('<?= rtrim(dirname($_SERVER["SCRIPT_NAME"]),"/\\") ?>/api/reports.php?action=umkm_stats');
-        document.getElementById('umkm-balance').innerText = 'Rp 50.000';
-    } catch(e) { document.getElementById('umkm-balance').innerText = 'Rp 50.000'; }
+        const url = '<?= rtrim(dirname($_SERVER["SCRIPT_NAME"]),"/\\") ?>/api/reports.php?action=umkm_stats';
+        const res = await fetch(url).then(r => r.json());
+        if (res.status === 'success') {
+            const bal = res.data.smartbank_balance;
+            document.getElementById('umkm-balance').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(bal);
+        } else {
+            document.getElementById('umkm-balance').innerText = 'Rp 0';
+        }
+    } catch(e) { document.getElementById('umkm-balance').innerText = 'Rp 0'; }
 })();
 
 // Flash Sale Countdown Timer

@@ -260,7 +260,7 @@
         ];
 
         let orderHistory = [
-            { id: 'ORD-B2B-881', source: 'Toko Roti Makmur', completedAt: '2026-04-20 10:35', totalAwal: 150000, feeSupplier: 4500, totalTagihan: 154500, status: 'Lunas' }
+            { id: 'ORD-B2B-881', source: 'Toko Roti Makmur', completedAt: '2026-04-20 10:35', totalAwal: 150000, feeSupplier: 4500, totalTagihan: 154500, status: 'Lunas', resi: 'SP-8810' }
         ];
 
         let currentReviewOrder = null;
@@ -465,7 +465,6 @@
         // --- Render Views Lainnya ---
 
         function renderDashboard(container) {
-            const totalStockVal = materials.reduce((sum, m) => sum + (m.price * m.stock), 0);
             const totalRev = orderHistory.reduce((sum, o) => sum + o.totalTagihan, 0);
 
             container.innerHTML = `
@@ -473,11 +472,7 @@
                     <h1 class="text-2xl font-bold text-slate-800">Dashboard Admin Supplier</h1>
                     <p class="text-slate-500 text-sm mt-1">Pemantauan logistik bahan baku dan status request pembayaran (B2B).</p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white rounded-xl p-5 border border-slate-100 shadow-sm flex items-center">
-                        <div class="w-12 h-12 rounded-lg bg-blue-100 text-primary flex items-center justify-center text-2xl mr-4"><i class="ph-fill ph-package"></i></div>
-                        <div><p class="text-sm text-slate-500 font-medium mb-1">Valuasi Stok Tersedia</p><h3 class="text-xl font-bold text-slate-800">${formatRupiah(totalStockVal)}</h3></div>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="bg-white rounded-xl p-5 border border-slate-100 shadow-sm flex items-center">
                         <div class="w-12 h-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mr-4"><i class="ph-fill ph-tray-arrow-down"></i></div>
                         <div><p class="text-sm text-slate-500 font-medium mb-1">Pesanan Menunggu Review</p><h3 class="text-2xl font-bold text-slate-800">${incomingOrders.length} <span class="text-sm font-normal text-slate-500">Order</span></h3></div>
@@ -544,10 +539,10 @@
 
         function renderLaporan(container) {
             let rows = orderHistory.map(o => `
-                <tr class="border-b border-slate-100 hover:bg-slate-50"><td class="py-3 px-4"><div class="text-xs text-slate-500">${o.completedAt}</div><div class="font-mono text-sm font-bold text-slate-700">${o.id}</div></td><td class="py-3 px-4 text-sm font-medium text-slate-800">${o.source}</td><td class="py-3 px-4 text-sm font-bold text-slate-800">${formatRupiah(o.totalAwal)}</td><td class="py-3 px-4 text-sm font-bold text-green-600">+ ${formatRupiah(o.feeSupplier)}</td><td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold border border-green-200"><i class="ph-fill ph-check-circle mr-1"></i> ${o.status}</span></td></tr>
+                <tr class="border-b border-slate-100 hover:bg-slate-50"><td class="py-3 px-4"><div class="text-xs text-slate-500">${o.completedAt}</div><div class="font-mono text-sm font-bold text-slate-700">${o.id}</div></td><td class="py-3 px-4 text-sm font-medium text-slate-800">${o.source}</td><td class="py-3 px-4 text-sm font-bold text-slate-800">${formatRupiah(o.totalAwal)}</td><td class="py-3 px-4 text-sm font-bold text-green-600">+ ${formatRupiah(o.feeSupplier)}</td><td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold border border-green-200"><i class="ph-fill ph-check-circle mr-1"></i> ${o.status}</span></td><td class="py-3 px-4">${o.resi ? `<span class="font-mono text-sm font-bold text-primary flex items-center gap-1"><i class="ph ph-truck"></i>${o.resi}</span>` : `<span class="px-2 py-1 bg-slate-100 text-slate-400 rounded text-xs font-medium">Belum Ada Resi</span>`}</td></tr>
             `).join('');
 
-            container.innerHTML = `<div class="mb-6"><h1 class="text-2xl font-bold text-slate-800">Laporan Tagihan</h1><p class="text-slate-500 text-sm mt-1">Riwayat payment request yang dilunasi.</p></div><div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[700px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold tracking-wider"><th class="py-3 px-4">Waktu & ID</th><th class="py-3 px-4">Klien (UMKM)</th><th class="py-3 px-4">Nilai Barang</th><th class="py-3 px-4">Pendapatan Fee</th><th class="py-3 px-4">Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+            container.innerHTML = `<div class="mb-6"><h1 class="text-2xl font-bold text-slate-800">Laporan Tagihan</h1><p class="text-slate-500 text-sm mt-1">Riwayat payment request yang dilunasi.</p></div><div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left border-collapse min-w-[800px]"><thead><tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold tracking-wider"><th class="py-3 px-4">Waktu & ID</th><th class="py-3 px-4">Klien (UMKM)</th><th class="py-3 px-4">Nilai Barang</th><th class="py-3 px-4">Pendapatan Fee</th><th class="py-3 px-4">Status</th><th class="py-3 px-4">Resi Pengiriman</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
         }
 
         // --- Logika Review Pesanan ---
@@ -573,7 +568,8 @@
 
             document.getElementById('modal-order-body').innerHTML = `
                 <div class="mb-4"><h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">1. Validasi Stok Gudang</h4><div class="bg-slate-50 p-4 rounded-xl border border-slate-100">${itemRows}</div>${!isStockSufficient ? `<div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-700 text-sm"><i class="ph-fill ph-warning-circle text-lg mt-0.5"></i><p><strong>Peringatan:</strong> Stok tidak mencukupi untuk memenuhi pesanan ini.</p></div>` : ''}</div>
-                <div><h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">2. Kalkulasi Payment Request</h4><div class="bg-blue-50 border border-blue-100 p-4 rounded-xl"><div class="flex justify-between text-sm text-slate-600 mb-2"><span>Subtotal Nilai Barang:</span><span class="font-medium">${formatRupiah(subtotal)}</span></div><div class="flex justify-between text-sm text-slate-600 mb-3 border-b border-blue-200 pb-2"><span>Fee Supplier (3%):</span><span class="font-bold text-green-600">+ ${formatRupiah(feeSupplier)}</span></div><div class="flex justify-between items-center mt-2"><span class="font-bold text-slate-800">Total Tagihan:</span><span class="font-bold text-primary text-xl">${formatRupiah(totalTagihan)}</span></div></div></div>
+                <div class="mb-4"><h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">2. Kalkulasi Payment Request</h4><div class="bg-blue-50 border border-blue-100 p-4 rounded-xl"><div class="flex justify-between text-sm text-slate-600 mb-2"><span>Subtotal Nilai Barang:</span><span class="font-medium">${formatRupiah(subtotal)}</span></div><div class="flex justify-between text-sm text-slate-600 mb-3 border-b border-blue-200 pb-2"><span>Fee Supplier (3%):</span><span class="font-bold text-green-600">+ ${formatRupiah(feeSupplier)}</span></div><div class="flex justify-between items-center mt-2"><span class="font-bold text-slate-800">Total Tagihan:</span><span class="font-bold text-primary text-xl">${formatRupiah(totalTagihan)}</span></div></div></div>
+                <div><h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">3. Nomor Resi Pengiriman</h4><div class="flex items-center gap-3 border border-slate-200 rounded-lg p-3 bg-slate-50 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all"><i class="ph ph-truck text-slate-400 text-xl shrink-0"></i><input type="text" id="input-resi-pengiriman" class="flex-1 bg-transparent outline-none text-sm text-slate-800 placeholder-slate-400 font-mono" placeholder="Contoh: SP-1234" maxlength="20"></div><p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1"><i class="ph ph-info"></i> Opsional. Isi jika barang sudah siap dikirim. Format: SP-XXXX</p></div>
             `;
 
             const btnApprove = document.getElementById('btn-approve');
@@ -601,13 +597,15 @@
         }
 
         function processPaymentRequest(subtotal, feeSupplier, totalTagihan) {
+            const resiInput = document.getElementById('input-resi-pengiriman');
+            const resi = resiInput && resiInput.value.trim() ? resiInput.value.trim() : null;
             showToast('Memproses Payment Request...', 'info');
             closeOrderModal();
             setTimeout(() => {
                 currentReviewOrder.items.forEach(item => { const mat = materials.find(m => m.id === item.materialId); if (mat) mat.stock -= item.qty; });
                 const f = new Date();
                 const timeStr = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')} ${String(f.getHours()).padStart(2, '0')}:${String(f.getMinutes()).padStart(2, '0')}`;
-                orderHistory.unshift({ id: currentReviewOrder.id, source: currentReviewOrder.source, completedAt: timeStr, totalAwal: subtotal, feeSupplier: feeSupplier, totalTagihan: totalTagihan, status: 'Lunas' });
+                orderHistory.unshift({ id: currentReviewOrder.id, source: currentReviewOrder.source, completedAt: timeStr, totalAwal: subtotal, feeSupplier: feeSupplier, totalTagihan: totalTagihan, status: 'Lunas', resi: resi });
                 incomingOrders = incomingOrders.filter(o => o.id !== currentReviewOrder.id);
                 showToast(`Payment Request ${currentReviewOrder.id} lunas.`, 'success');
                 setTimeout(() => navigate('laporan'), 800);

@@ -29,7 +29,7 @@ class DashboardController {
         /** @var PaymentGatewayInterface $gateway */
         $gateway = 'SmartBankService';
         $balanceResponse = $gateway::getBalance($supplier_id);
-        $balance = $balanceResponse['data']['balance'] ?? 0;
+        $balance = $balanceResponse['data']['saldo'] ?? $balanceResponse['data']['balance'] ?? 0;
 
         return [
             'status' => 'success',
@@ -53,7 +53,7 @@ class DashboardController {
         /** @var PaymentGatewayInterface $gateway */
         $gateway = 'SmartBankService';
         $balanceResponse = $gateway::getBalance($umkm_id);
-        $balance = $balanceResponse['data']['balance'] ?? 0;
+        $balance = $balanceResponse['data']['saldo'] ?? $balanceResponse['data']['balance'] ?? 0;
 
         return [
             'status' => 'success',
@@ -73,7 +73,7 @@ class DashboardController {
         /** @var PaymentGatewayInterface $gateway */
         $gateway = 'SmartBankService';
         $balanceResponse = $gateway::getBalance($user_id);
-        $balance = $balanceResponse['data']['balance'] ?? 0;
+        $balance = $balanceResponse['data']['saldo'] ?? $balanceResponse['data']['balance'] ?? 0;
 
         // Fetch local ledger (Neraca) from payments
         $summary = Payment::getSummary($user_id);

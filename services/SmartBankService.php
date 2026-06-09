@@ -23,8 +23,16 @@ class SmartBankService implements PaymentGatewayInterface {
      *   Output: payment status + reference
      */
     public static function pay($user_id, $amount, $fee_supplier, $description = '') {
+        // Map local SupplierHub user ID to SmartBank account user ID
+        // local ID 1 (Supplier) -> SmartBank ID 3
+        // local ID 2 (UMKM)     -> SmartBank ID 2
+        $mappedUserId = $user_id;
+        if ($user_id == 1) {
+            $mappedUserId = 3;
+        }
+
         $payload = [
-            'user_id'      => $user_id,
+            'user_id'      => $mappedUserId,
             'amount'       => $amount,
             'fee_supplier' => $fee_supplier,
             'fee_gateway'  => GatewayMiddleware::calculateFee($amount),
@@ -46,8 +54,14 @@ class SmartBankService implements PaymentGatewayInterface {
      * Get user balance from SmartBank
      */
     public static function getBalance($user_id) {
+        // Map local SupplierHub user ID to SmartBank account user ID
+        $mappedUserId = $user_id;
+        if ($user_id == 1) {
+            $mappedUserId = 3;
+        }
+
         $payload = [
-            'user_id'    => $user_id,
+            'user_id'    => $mappedUserId,
             'source_app' => 'SupplierHub'
         ];
 

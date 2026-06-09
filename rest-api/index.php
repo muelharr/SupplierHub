@@ -92,6 +92,7 @@ try {
                 'GET  /api/v1/orders'                => 'List orders',
                 'GET  /api/v1/orders/:id'            => 'Detail order',
                 'POST /api/v1/orders'                => 'Buat pesanan',
+                'POST /api/v1/orders/smart-bundle'   => 'Rekomendasi bundling (Greedy)',
                 'PATCH /api/v1/orders/:id/approve'   => 'Approve order',
                 'PATCH /api/v1/orders/:id/reject'    => 'Reject order',
                 'GET  /api/v1/reports/stats'         => 'Dashboard stats',
@@ -169,8 +170,13 @@ try {
         $orderId = $segments[3] ?? null;
         $action = $segments[4] ?? null;
 
+        // POST /api/v1/orders/smart-bundle → Greedy Bundling Recommendation
+        // (Harus sebelum route :id agar 'smart-bundle' tidak terparse sebagai orderId)
+        if ($method === 'POST' && $orderId === 'smart-bundle') {
+            OrderController::getRecommendation($user);
+        }
         // GET /api/v1/orders → list
-        if ($method === 'GET' && !$orderId) {
+        elseif ($method === 'GET' && !$orderId) {
             OrderController::index($user);
         }
         // GET /api/v1/orders/:id → show

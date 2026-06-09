@@ -182,7 +182,7 @@
 
         let cart = [];
         let orderHistory = [
-            { id: 'ORD-B2B-881', date: '2026-04-20 10:30', total: 154500, status: 'Selesai' }
+            { id: 'ORD-B2B-881', date: '2026-04-20 10:30', total: 154500, status: 'Selesai', resi: 'SP-8810' }
         ];
 
         // --- Core Functions ---
@@ -410,13 +410,27 @@
                                 <span class="font-bold text-primary text-xl">${formatRupiah(grandTotal)}</span>
                             </div>
 
-                            <div class="bg-blue-50 border border-blue-100 p-3 rounded-lg text-xs text-blue-800 mb-4 flex items-start">
-                                <i class="ph-fill ph-bank mt-0.5 mr-2 text-lg"></i>
-                                <p>Pembayaran akan otomatis memotong saldo <strong>SmartBank</strong> Anda (Rp ${userBalance.toLocaleString('id-ID')}).</p>
+                            <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl p-4 mb-4 text-white relative overflow-hidden shadow-md">
+                                <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
+                                <div class="absolute bottom-0 left-0 w-14 h-14 bg-white/10 rounded-full translate-y-5 -translate-x-5"></div>
+                                <div class="relative z-10">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-1.5">
+                                            <i class="ph-fill ph-bank text-lg"></i>
+                                            <span class="text-xs font-bold uppercase tracking-widest opacity-80">SmartBank</span>
+                                        </div>
+                                        <span class="text-[10px] bg-white/25 px-2 py-0.5 rounded-full font-bold tracking-wider">B2B</span>
+                                    </div>
+                                    <p class="text-[10px] opacity-60 uppercase tracking-wider mb-0.5">Saldo Tersedia</p>
+                                    <p class="text-2xl font-bold leading-tight">${formatRupiah(userBalance)}</p>
+                                    <p class="text-[10px] opacity-60 mt-2 flex items-center gap-1"><i class="ph ph-user-circle"></i> Warung Bu Ani · Node POS</p>
+                                </div>
                             </div>
-
+                            <p class="text-xs text-slate-400 text-center mb-3 flex items-center justify-center gap-1">
+                                <i class="ph ph-lock-simple text-emerald-500"></i> Pembayaran aman via API Gateway
+                            </p>
                             <button onclick="processCheckout(${grandTotal})" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center shadow-md">
-                                <i class="ph ph-wallet mr-2 text-lg"></i> Bayar via SmartBank
+                                <i class="ph-fill ph-bank mr-2 text-lg"></i> Bayar via SmartBank
                             </button>
                         </div>
                     </div>
@@ -442,6 +456,9 @@
                     <td class="py-3 px-4 text-sm text-slate-600">
                         <i class="ph ph-truck mr-1 text-slate-400"></i> Menunggu Kurir
                     </td>
+                    <td class="py-3 px-4">
+                        ${o.resi ? `<span class="font-mono text-sm font-bold text-primary flex items-center gap-1"><i class="ph ph-truck"></i>${o.resi}</span>` : `<span class="px-2 py-1 bg-slate-100 text-slate-500 rounded text-xs font-medium">Menunggu Resi</span>`}
+                    </td>
                 </tr>
             `).join('');
 
@@ -460,10 +477,11 @@
                                     <th class="py-3 px-4">Total Nilai</th>
                                     <th class="py-3 px-4">Pembayaran (SmartBank)</th>
                                     <th class="py-3 px-4">Status Logistik</th>
+                                    <th class="py-3 px-4">Resi Pengiriman</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${orderHistory.length > 0 ? rows : '<tr><td colspan="4" class="py-8 text-center text-slate-500">Belum ada riwayat belanja.</td></tr>'}
+                                ${orderHistory.length > 0 ? rows : '<tr><td colspan="5" class="py-8 text-center text-slate-500">Belum ada riwayat belanja.</td></tr>'}
                             </tbody>
                         </table>
                     </div>
@@ -517,7 +535,8 @@
                     id: newId,
                     date: dateStr,
                     total: grandTotal,
-                    status: 'Selesai'
+                    status: 'Selesai',
+                    resi: null
                 });
 
                 // Kosongkan keranjang

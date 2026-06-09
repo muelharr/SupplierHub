@@ -218,7 +218,7 @@ class OrderController {
      * Supplier: Approve order and trigger payment
      * IPO: order_id → validate stock → reduce stock → payment request → completed
      */
-    public static function approve($order_id, $supplier_id) {
+    public static function approve($order_id, $supplier_id, $resi = null) {
         // Get order
         $order = Order::getWithItems($order_id);
         if (!$order) {
@@ -268,7 +268,7 @@ class OrderController {
 
         // Update order status
         $smartbankRef = $paymentResponse['data']['payment_id'] ?? null;
-        Order::approve($order_id, $smartbankRef);
+        Order::approve($order_id, $smartbankRef, $resi);
 
         // Log ke tabel payments lokal (Buku Kas)
         Payment::create($order['umkm_id'], 'debit', $order['total'], "Pembayaran pesanan {$order['order_code']}", $smartbankRef);

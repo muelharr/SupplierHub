@@ -177,16 +177,17 @@ class Order {
     /**
      * Approve order and update status
      */
-    public static function approve($order_id, $smartbank_ref = null) {
+    public static function approve($order_id, $smartbank_ref = null, $resi = null) {
         $db = getDB();
         $stmt = $db->prepare("
             UPDATE orders 
-            SET status = 'completed', smartbank_ref = :ref, completed_at = NOW()
+            SET status = 'completed', smartbank_ref = :ref, resi_pengiriman = :resi, completed_at = NOW()
             WHERE id = :id AND status = 'pending'
         ");
         $stmt->execute([
-            'ref' => $smartbank_ref,
-            'id'  => $order_id
+            'ref'  => $smartbank_ref,
+            'resi' => $resi,
+            'id'   => $order_id
         ]);
         return $stmt->rowCount() > 0;
     }

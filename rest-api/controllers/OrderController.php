@@ -13,6 +13,7 @@
  * Semua didelegasikan ke OrderService.
  * 
  * Fitur 3: Order Bahan Baku + Fitur 4: Konfirmasi Order
+ * Fitur 5: Rekomendasi Bundling Optimal (Algoritma Greedy)
  * 
  * IPO Pattern (Aplikasi.docx):
  *   Input: supplier_id, items[] (checkout) / order_id (approve/reject)
@@ -23,6 +24,7 @@
 require_once __DIR__ . '/../helpers/Response.php';
 require_once __DIR__ . '/../helpers/Validator.php';
 require_once __DIR__ . '/../services/OrderService.php';
+require_once __DIR__ . '/../services/GreedyBundlingService.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 
 class OrderController {
@@ -137,5 +139,51 @@ class OrderController {
         OrderService::reject($id);
 
         Response::success(null, 'Pesanan berhasil ditolak.');
+    }
+
+    /**
+     * Memberikan rekomendasi bundling paket bahan baku optimal.
+     * 
+     * @param array $user Data user yang aktif.
+     * @return void
+     */
+    public static function getRecommendation($user) {
+        $input = Validator::getJsonBody();
+
+        // Validasi format data input
+        $errors = Validator::validate($input, [
+            'budget' => 'required|integer',
+        ]);
+        if (!empty($errors)) {
+            Response::error('Validasi gagal.', 400, $errors);
+        }
+
+        $budget = (int) $input['budget'];
+        if ($budget <= 0) {
+            Response::error('Budget harus lebih besar dari 0.', 400);
+        }
+
+        // Ambil parameter tambahan
+        $priorityCategories = $input['priority_categories'] ?? [];
+        $maxItems = isset($input['max_items']) ? (int) $input['max_items'] : null;
+
+        // Validasi kategori prioritas
+        if (!is_array($priorityCategories)) {
+            Response::error('priority_categories harus berupa array.', 400);
+        }
+
+        // Validasi batas maksimal jenis item
+        if ($maxItems !== null && $maxItems <= 0) {
+            Response::error('max_items harus lebih besar dari 0.', 400);
+        }
+
+        // Dapatkan rekomendasi dari bundling service
+        try {
+            $result = GreedyBundlingService::recommend($budget, $priorityCategories, $maxItems);
+            Response::success($result, 'Rekomendasi bundling berhasil dihitung dengan algoritma Greedy (Fractional Knapsack).');
+        } catch (Exception $e) {
+            $code = $e->getCode() ?: 500;
+            Response::error($e->getMessage(), $code);
+        }
     }
 }

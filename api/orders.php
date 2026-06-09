@@ -154,11 +154,27 @@ switch ($action) {
         $response = OrderController::detail($orderId);
         break;
 
+    case 'detail_by_ref':
+        $user = AuthMiddleware::requireAuth();
+        $userId = $user['user_id'];
+        $ref = $_GET['ref'] ?? '';
+        $db = getDB();
+        $stmt = $db->prepare("SELECT id FROM orders WHERE smartbank_ref = :ref OR order_code = :ref LIMIT 1");
+        $stmt->execute(['ref' => $ref]);
+        $row = $stmt->fetch();
+        if ($row) {
+            $response = OrderController::detail($row['id']);
+        } else {
+            $response = ['status' => 'error', 'message' => 'Pesanan tidak ditemukan.'];
+        }
+        break;
+
     case 'approve':
         $user = AuthMiddleware::requireAuth('supplier');
         $userId = $user['user_id'];
         $orderId = $input['order_id'] ?? 0;
-        $response = OrderController::approve($orderId, $userId);
+        $resiPengiriman = $input['resi_pengiriman'] ?? null;
+        $response = OrderController::approve($orderId, $userId, $resiPengiriman);
         break;
 
     case 'reject':
