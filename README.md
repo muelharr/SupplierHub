@@ -97,6 +97,27 @@ Anda dapat membaca kontrak endpoint API secara visual langsung dari browser:
 
 ---
 
+## 📊 Dokumen Desain Sistem (Tugas Besar RPL 2)
+Dokumen desain sistem yang komprehensif untuk tugas besar RPL 2 tersedia di dalam direktori proyek:
+- **Lokasi File**: `C:\laragon\www\SupplierHub\dokumentasi\dokumen_desain.md`
+- **Link Cepat**: [dokumen_desain.md](file:///c:/laragon/www/SupplierHub/dokumentasi/dokumen_desain.md)
+
+Dokumen tersebut berisi 12 bagian lengkap:
+1. Deskripsi Aplikasi B2B
+2. Daftar Fitur / Use Case
+3. Diagram Arsitektur (Format Graphviz DOT)
+4. Alur Input-Proses-Output (IPO)
+5. Kontrak API Endpoint Lengkap
+6. Detail Integrasi Core Banking SmartBank
+7. Skema Database & Relasi ERD (Format Graphviz DOT)
+8. Mekanisme Keuangan & Formula Perhitungan Fee (Margin 3%, Bank Fee 1%)
+9. Tata Letak UI Sederhana (Text Mockups)
+10. Skenario Pengujian Sistem
+11. Refleksi Kendala Teknis & Solusi (Race Condition, Simulator Offline)
+12. Pembagian Kontribusi Tim
+
+---
+
 ## 💳 Akun Simulasi untuk Uji Coba
 
 Anda dapat masuk (Login) ke sistem SupplierHub menggunakan akun berikut:
