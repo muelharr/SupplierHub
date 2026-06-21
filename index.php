@@ -192,6 +192,7 @@ if ($p === 'umkm') {
                 case 'keranjang': require __DIR__ . '/views/umkm/keranjang.php'; break;
                 case 'riwayat':   require __DIR__ . '/views/umkm/riwayat.php'; break;
                 case 'keuangan':  require __DIR__ . '/views/umkm/keuangan.php'; break;
+                case 'smart-procurement': require __DIR__ . '/views/umkm/smart_procurement.php'; break;
                 default:          require __DIR__ . '/views/umkm/dashboard.php'; break;
             }
             ?>

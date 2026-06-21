@@ -107,6 +107,7 @@ class GreedyBundlingService
                     'unit'          => $material['unit'],
                     'line_total'    => $lineCost,
                     'icon'          => $material['icon'],
+                    'supplier_name' => $material['supplier_name'],
                     'utility_score' => $material['utility_score'],
                     'ratio'         => round($material['ratio'], 6)
                 ];

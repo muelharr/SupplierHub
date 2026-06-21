@@ -10,6 +10,10 @@
             class="nav-btn w-full flex items-center px-3 py-2.5 rounded-lg <?= ($currentPage ?? '') === 'dashboard' ? 'bg-primary text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?> font-medium transition-colors">
             <i class="ph ph-squares-four text-xl mr-3"></i> Dashboard
         </a>
+        <a href="index.php?p=umkm&page=smart-procurement" id="nav-smart-procurement"
+            class="nav-btn w-full flex items-center px-3 py-2.5 rounded-lg <?= ($currentPage ?? '') === 'smart-procurement' ? 'bg-primary text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?> font-medium transition-colors">
+            <i class="ph ph-chart-line-up text-xl mr-3"></i> Smart Procurement
+        </a>
         <a href="index.php?p=umkm&page=katalog" id="nav-katalog"
             class="nav-btn w-full flex items-center px-3 py-2.5 rounded-lg <?= ($currentPage ?? '') === 'katalog' ? 'bg-primary text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' ?> font-medium transition-colors">
             <i class="ph ph-shopping-bag text-xl mr-3"></i> Katalog Supplier
